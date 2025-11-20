@@ -1,0 +1,123 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relações
+  requestedPurchases PurchaseRequest[] @relation("Requester")
+  orderedPurchases   PurchaseOrder[]   @relation("Orderer")
+  historyActions     PurchaseHistory[]
+}
+
+enum Role {
+  ADMIN
+  COLABORADOR
+  COMPRADOR
+  ESTOQUISTA
+}
+
+model Supplier {
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String?
+  email     String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relações
+  items          Item[]
+  purchaseOrders PurchaseOrder[]
+}
+
+model Item {
+  id                  Int      @id @default(autoincrement())
+  name                String
+  unit                String   // kg, unidade, litro, etc
+  preferredSupplierId Int?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relações
+  preferredSupplier Supplier?         @relation(fields: [preferredSupplierId], references: [id])
+  purchaseRequests  PurchaseRequest[]
+}
+
+model PurchaseRequest {
+  id          Int       @id @default(autoincrement())
+  itemId      Int
+  quantity    Float
+  unitPrice   Float?
+  requestedBy Int
+  status      PRStatus  @default(PENDING)
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relações
+  item    Item              @relation(fields: [itemId], references: [id])
+  requester User            @relation("Requester", fields: [requestedBy], references: [id])
+  history PurchaseHistory[]
+  order   PurchaseOrder?
+}
+
+enum PRStatus {
+  PENDING
+  ORDERED
+  PURCHASED
+  RECEIVED
+  CANCELLED
+}
+
+model PurchaseOrder {
+  id                Int      @id @default(autoincrement())
+  purchaseRequestId Int      @unique
+  supplierId        Int
+  orderedBy         Int
+  status            POStatus @default(ORDERED)
+  totalPrice        Float?
+  notes             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relações
+  purchaseRequest PurchaseRequest @relation(fields: [purchaseRequestId], references: [id])
+  supplier        Supplier        @relation(fields: [supplierId], references: [id])
+  orderer         User            @relation("Orderer", fields: [orderedBy], references: [id])
+}
+
+enum POStatus {
+  ORDERED
+  FINISHED
+  CANCELLED
+}
+
+model PurchaseHistory {
+  id        Int      @id @default(autoincrement())
+  prId      Int
+  action    String   // "CREATED", "ORDERED", "PURCHASED", "RECEIVED", "CANCELLED"
+  byUserId  Int
+  notes     String?
+  createdAt DateTime @default(now())
+
+  // Relações
+  pr   PurchaseRequest @relation(fields: [prId], references: [id])
+  user User            @relation(fields: [byUserId], references: [id])
+}
