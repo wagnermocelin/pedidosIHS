@@ -26,6 +26,9 @@ const PORT = process.env.PORT || 3001
 // Middlewares
 app.use(cors({
   origin: function(origin, callback) {
+    console.log('🔍 CORS - Origin recebida:', origin);
+    console.log('🔍 CORS - FRONTEND_URL:', process.env.FRONTEND_URL);
+    
     // Permitir requisições sem origin (mobile apps, curl, etc)
     if (!origin) return callback(null, true);
     
@@ -34,17 +37,23 @@ app.use(cors({
       'http://127.0.0.1:5173',
       'http://localhost:3000',
       'http://127.0.0.1:3000',
+      'https://pedidos-ihs.vercel.app',
       process.env.FRONTEND_URL
     ].filter(Boolean);
     
+    console.log('🔍 CORS - Origens permitidas:', allowedOrigins);
+    
     // Permitir qualquer origem localhost/127.0.0.1 em desenvolvimento
     if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+      console.log('✅ CORS - Localhost permitido');
       return callback(null, true);
     }
     
     if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log('✅ CORS - Origin permitida');
       callback(null, true);
     } else {
+      console.log('❌ CORS - Origin bloqueada');
       callback(new Error('Não permitido pelo CORS'));
     }
   },
