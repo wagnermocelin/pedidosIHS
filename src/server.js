@@ -4,13 +4,21 @@ const cors = require('cors')
 const morgan = require('morgan')
 
 // Importar rotas
+console.log('📦 Carregando rotas...')
 const authRoutes = require('./routes/auth')
+console.log('✅ Auth routes carregadas')
 const userRoutes = require('./routes/users')
+console.log('✅ User routes carregadas')
 const itemRoutes = require('./routes/items')
+console.log('✅ Item routes carregadas')
 const supplierRoutes = require('./routes/suppliers')
+console.log('✅ Supplier routes carregadas')
 const purchaseRoutes = require('./routes/purchases')
+console.log('✅ Purchase routes carregadas')
 const historyRoutes = require('./routes/history')
+console.log('✅ History routes carregadas')
 const aiRoutes = require('./routes/ai')
+console.log('✅ AI routes carregadas')
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -56,13 +64,16 @@ app.get('/health', (req, res) => {
 })
 
 // Rotas da API
+console.log('🔗 Registrando rotas da API...')
 app.use('/api/auth', authRoutes)
+console.log('✅ /api/auth registrada')
 app.use('/api/users', userRoutes)
 app.use('/api/items', itemRoutes)
 app.use('/api/suppliers', supplierRoutes)
 app.use('/api/purchase-requests', purchaseRoutes)
 app.use('/api/history', historyRoutes)
 app.use('/api/ai', aiRoutes)
+console.log('✅ Todas as rotas registradas')
 
 // Rota 404
 app.use((req, res) => {
