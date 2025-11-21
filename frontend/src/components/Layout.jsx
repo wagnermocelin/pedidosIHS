@@ -13,6 +13,7 @@ import {
   Upload
 } from 'lucide-react'
 import { useState } from 'react'
+import BackgroundLogo from './BackgroundLogo'
 
 export default function Layout() {
   const { user, logout } = useAuth()
@@ -40,7 +41,10 @@ export default function Layout() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 relative">
+      {/* Background Logo */}
+      <BackgroundLogo />
+      
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -139,7 +143,7 @@ export default function Layout() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-1">
         <Outlet />
       </main>
     </div>
