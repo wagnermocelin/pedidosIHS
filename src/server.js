@@ -40,6 +40,7 @@ app.use(cors({
       'http://localhost:3000',
       'http://127.0.0.1:3000',
       'https://pedidos-ihs.vercel.app',
+      'https://pedidos-ihs-git-main-wagnermocelin.vercel.app', // Preview URLs do Vercel
       process.env.FRONTEND_URL
     ].filter(Boolean);
     
@@ -51,15 +52,23 @@ app.use(cors({
       return callback(null, true);
     }
     
+    // Permitir qualquer subdomínio do Vercel
+    if (origin.includes('.vercel.app')) {
+      console.log('✅ CORS - Vercel permitido');
+      return callback(null, true);
+    }
+    
     if (allowedOrigins.indexOf(origin) !== -1) {
       console.log('✅ CORS - Origin permitida');
       callback(null, true);
     } else {
-      console.log('❌ CORS - Origin bloqueada');
+      console.log('❌ CORS - Origin bloqueada:', origin);
       callback(new Error('Não permitido pelo CORS'));
     }
   },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
