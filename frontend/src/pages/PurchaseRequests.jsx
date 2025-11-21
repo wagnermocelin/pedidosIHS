@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
-import { Plus, Mic, Filter, X } from 'lucide-react'
+import { Plus, Mic, Filter, X, Trash2 } from 'lucide-react'
 import { useVoice } from '../hooks/useVoice'
 
 export default function PurchaseRequests() {
@@ -67,6 +67,21 @@ export default function PurchaseRequests() {
     } catch (error) {
       console.error(`Erro ao ${action}:`, error)
       alert(`Erro ao executar ação: ${error.response?.data?.error || 'Erro desconhecido'}`)
+    }
+  }
+
+  async function handleDelete(id, itemName) {
+    if (!confirm(`Tem certeza que deseja excluir o pedido de "${itemName}"?\n\nEsta ação não pode ser desfeita.`)) {
+      return
+    }
+
+    try {
+      await api.delete(`/purchase-requests/${id}`)
+      alert('Pedido excluído com sucesso!')
+      loadData()
+    } catch (error) {
+      console.error('Erro ao excluir pedido:', error)
+      alert(`Erro ao excluir pedido: ${error.response?.data?.error || 'Erro desconhecido'}`)
     }
   }
 
@@ -209,39 +224,53 @@ export default function PurchaseRequests() {
                 {getStatusBadge(request.status)}
                 
                 {/* Ações baseadas no status e role */}
-                {request.status === 'PENDING' && canOrder && (
-                  <button
-                    onClick={() => {
-                      const supplierId = request.item.preferredSupplierId || suppliers[0]?.id
-                      if (supplierId) {
-                        handleStatusChange(request.id, 'order', { supplierId })
-                      } else {
-                        alert('Selecione um fornecedor')
-                      }
-                    }}
-                    className="btn btn-primary text-sm"
-                  >
-                    Fazer Pedido
-                  </button>
-                )}
-                
-                {request.status === 'ORDERED' && canOrder && (
-                  <button
-                    onClick={() => handleStatusChange(request.id, 'purchase')}
-                    className="btn btn-success text-sm"
-                  >
-                    Marcar Comprado
-                  </button>
-                )}
-                
-                {request.status === 'PURCHASED' && canReceive && (
-                  <button
-                    onClick={() => handleStatusChange(request.id, 'receive')}
-                    className="btn btn-success text-sm"
-                  >
-                    Confirmar Recebimento
-                  </button>
-                )}
+                <div className="flex gap-2">
+                  {request.status === 'PENDING' && canOrder && (
+                    <button
+                      onClick={() => {
+                        const supplierId = request.item.preferredSupplierId || suppliers[0]?.id
+                        if (supplierId) {
+                          handleStatusChange(request.id, 'order', { supplierId })
+                        } else {
+                          alert('Selecione um fornecedor')
+                        }
+                      }}
+                      className="btn btn-primary text-sm"
+                    >
+                      Fazer Pedido
+                    </button>
+                  )}
+                  
+                  {request.status === 'ORDERED' && canOrder && (
+                    <button
+                      onClick={() => handleStatusChange(request.id, 'purchase')}
+                      className="btn btn-success text-sm"
+                    >
+                      Marcar Comprado
+                    </button>
+                  )}
+                  
+                  {request.status === 'PURCHASED' && canReceive && (
+                    <button
+                      onClick={() => handleStatusChange(request.id, 'receive')}
+                      className="btn btn-success text-sm"
+                    >
+                      Confirmar Recebimento
+                    </button>
+                  )}
+                  
+                  {/* Botão de excluir - apenas para ADMIN ou criador do pedido em status PENDING */}
+                  {(user?.role === 'ADMIN' || request.requestedBy === user?.id) && 
+                   request.status === 'PENDING' && (
+                    <button
+                      onClick={() => handleDelete(request.id, request.item.name)}
+                      className="btn btn-danger text-sm"
+                      title="Excluir pedido"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>

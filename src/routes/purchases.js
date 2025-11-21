@@ -397,4 +397,61 @@ router.post(
   }
 )
 
+// Excluir pedido (apenas ADMIN ou criador do pedido, e apenas se PENDING)
+router.delete('/:id', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params
+
+    // Buscar pedido
+    const purchaseRequest = await prisma.purchaseRequest.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        requester: true,
+        order: true,
+      },
+    })
+
+    if (!purchaseRequest) {
+      return res.status(404).json({ error: 'Pedido não encontrado' })
+    }
+
+    // Verificar permissões
+    const isAdmin = req.user.role === 'ADMIN'
+    const isOwner = purchaseRequest.requestedBy === req.user.id
+    const isPending = purchaseRequest.status === 'PENDING'
+
+    if (!isAdmin && !isOwner) {
+      return res.status(403).json({ error: 'Você não tem permissão para excluir este pedido' })
+    }
+
+    if (!isPending && !isAdmin) {
+      return res.status(403).json({ 
+        error: 'Apenas pedidos pendentes podem ser excluídos. Use cancelar para outros status.' 
+      })
+    }
+
+    // Se houver ordem de compra associada, não permitir exclusão
+    if (purchaseRequest.order) {
+      return res.status(400).json({ 
+        error: 'Não é possível excluir pedido com ordem de compra. Cancele o pedido ao invés de excluir.' 
+      })
+    }
+
+    // Excluir histórico primeiro (relacionamento)
+    await prisma.purchaseHistory.deleteMany({
+      where: { prId: parseInt(id) },
+    })
+
+    // Excluir pedido
+    await prisma.purchaseRequest.delete({
+      where: { id: parseInt(id) },
+    })
+
+    res.json({ message: 'Pedido excluído com sucesso' })
+  } catch (error) {
+    console.error('Erro ao excluir pedido:', error)
+    res.status(500).json({ error: 'Erro ao excluir pedido' })
+  }
+})
+
 module.exports = router
