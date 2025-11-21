@@ -41,7 +41,7 @@ export default function Layout() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 relative">
+    <div className="min-h-screen bg-gray-50 relative flex flex-col">
       {/* Background Logo */}
       <BackgroundLogo />
       
@@ -143,9 +143,23 @@ export default function Layout() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-1">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-1 w-full">
         <Outlet />
       </main>
+
+      {/* Footer */}
+      <footer className="bg-white border-t border-gray-200 mt-auto relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="text-center text-sm text-gray-600">
+            <p>
+              Desenvolvido por <span className="font-semibold text-primary-600">Wagner Henrique Mocelin</span>
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              © {new Date().getFullYear()} Pedidos IHS - Todos os direitos reservados
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
