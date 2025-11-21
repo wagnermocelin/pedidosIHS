@@ -8,6 +8,8 @@ import Items from './pages/Items'
 import Suppliers from './pages/Suppliers'
 import History from './pages/History'
 import Users from './pages/Users'
+import ImportItems from './pages/ImportItems'
+import ChangePassword from './pages/ChangePassword'
 import Layout from './components/Layout'
 
 function PrivateRoute({ children }) {
@@ -24,7 +26,16 @@ function PrivateRoute({ children }) {
     )
   }
   
-  return user ? children : <Navigate to="/login" />
+  if (!user) {
+    return <Navigate to="/login" />
+  }
+  
+  // Se o usuário precisa trocar a senha, redirecionar
+  if (user.mustChangePassword && window.location.pathname !== '/change-password') {
+    return <Navigate to="/change-password" />
+  }
+  
+  return children
 }
 
 function App() {
@@ -33,6 +44,14 @@ function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route
+            path="/change-password"
+            element={
+              <PrivateRoute>
+                <ChangePassword />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/"
             element={
@@ -47,6 +66,7 @@ function App() {
             <Route path="fornecedores" element={<Suppliers />} />
             <Route path="usuarios" element={<Users />} />
             <Route path="historico" element={<History />} />
+            <Route path="importar" element={<ImportItems />} />
           </Route>
         </Routes>
       </Router>

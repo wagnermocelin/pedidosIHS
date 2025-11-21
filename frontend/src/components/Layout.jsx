@@ -9,7 +9,8 @@ import {
   LogOut,
   Menu,
   X,
-  UserCog
+  UserCog,
+  Upload
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -24,6 +25,7 @@ export default function Layout() {
     { name: 'Pedidos', href: '/pedidos', icon: ShoppingCart },
     { name: 'Itens', href: '/itens', icon: Package, roles: ['ADMIN'] },
     { name: 'Fornecedores', href: '/fornecedores', icon: Users },
+    { name: 'Importar Itens', href: '/importar', icon: Upload, roles: ['ADMIN'] },
     { name: 'Usuários', href: '/usuarios', icon: UserCog, roles: ['ADMIN'] },
     { name: 'Histórico', href: '/historico', icon: History },
   ]

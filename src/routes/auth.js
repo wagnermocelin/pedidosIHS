@@ -70,4 +70,60 @@ router.get('/me', authMiddleware, async (req, res) => {
   }
 })
 
+// Trocar senha
+router.post(
+  '/change-password',
+  authMiddleware,
+  [
+    body('currentPassword').notEmpty().withMessage('Senha atual é obrigatória'),
+    body('newPassword')
+      .isLength({ min: 6 })
+      .withMessage('Nova senha deve ter no mínimo 6 caracteres'),
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req)
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() })
+      }
+
+      const { currentPassword, newPassword } = req.body
+      const userId = req.user.id
+
+      // Buscar usuário com senha
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+      })
+
+      if (!user) {
+        return res.status(404).json({ error: 'Usuário não encontrado' })
+      }
+
+      // Verificar senha atual
+      const validPassword = await bcrypt.compare(currentPassword, user.password)
+
+      if (!validPassword) {
+        return res.status(401).json({ error: 'Senha atual incorreta' })
+      }
+
+      // Hash da nova senha
+      const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+      // Atualizar senha e remover flag de troca obrigatória
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          password: hashedPassword,
+          mustChangePassword: false,
+        },
+      })
+
+      res.json({ message: 'Senha alterada com sucesso' })
+    } catch (error) {
+      console.error('Erro ao trocar senha:', error)
+      res.status(500).json({ error: 'Erro ao trocar senha' })
+    }
+  }
+)
+
 module.exports = router

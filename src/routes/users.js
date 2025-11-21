@@ -96,19 +96,21 @@ router.post(
       // Hash da senha
       const hashedPassword = await bcrypt.hash(password, 10)
 
-      // Criar usuário
+      // Criar usuário (com flag para trocar senha no primeiro login)
       const user = await prisma.user.create({
         data: {
           name,
           email,
           password: hashedPassword,
           role,
+          mustChangePassword: true, // Obrigar troca de senha no primeiro login
         },
         select: {
           id: true,
           name: true,
           email: true,
           role: true,
+          mustChangePassword: true,
           createdAt: true,
         },
       })

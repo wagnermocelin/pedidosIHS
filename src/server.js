@@ -19,6 +19,8 @@ const historyRoutes = require('./routes/history')
 console.log('✅ History routes carregadas')
 const aiRoutes = require('./routes/ai')
 console.log('✅ AI routes carregadas')
+const importRoutes = require('./routes/import')
+console.log('✅ Import routes carregadas')
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -82,6 +84,7 @@ app.use('/api/suppliers', supplierRoutes)
 app.use('/api/purchase-requests', purchaseRoutes)
 app.use('/api/history', historyRoutes)
 app.use('/api/ai', aiRoutes)
+app.use('/api/import', importRoutes)
 console.log('✅ Todas as rotas registradas')
 
 // Rota 404

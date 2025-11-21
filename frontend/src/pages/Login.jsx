@@ -29,18 +29,31 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center px-4">
       <div className="max-w-md w-full">
+        {/* Logo e Título */}
         <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            {/* Logo do Bar - Adicione a imagem aqui */}
+            <div className="bg-white rounded-full p-4 shadow-lg">
+              <img 
+                src="/logo.png" 
+                alt="Logo IHS" 
+                className="w-24 h-24 object-contain"
+                onError={(e) => {
+                  // Fallback se a imagem não carregar
+                  e.target.style.display = 'none'
+                  e.target.nextSibling.style.display = 'block'
+                }}
+              />
+              <div style={{ display: 'none' }} className="w-24 h-24 flex items-center justify-center">
+                <LogIn className="w-16 h-16 text-primary-600" />
+              </div>
+            </div>
+          </div>
           <h1 className="text-4xl font-bold text-white mb-2">Pedidos IHS</h1>
           <p className="text-primary-100">Sistema de Gestão de Compras</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-xl p-8">
-          <div className="flex items-center justify-center mb-6">
-            <div className="bg-primary-100 p-3 rounded-full">
-              <LogIn className="w-8 h-8 text-primary-600" />
-            </div>
-          </div>
-
           <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
             Entrar
           </h2>
@@ -86,14 +99,14 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-600">
-            <p className="font-medium mb-2">Usuários de teste:</p>
-            <div className="space-y-1 text-xs">
-              <p>Admin: admin@ihopso.com / admin123</p>
-              <p>Colaboradora: cozinha@ihopso.com / cozinha123</p>
-              <p>Comprador: comprador@ihopso.com / comprador123</p>
-              <p>Estoquista: estoque@ihopso.com / estoque123</p>
-            </div>
+          {/* Footer com créditos */}
+          <div className="mt-8 pt-6 border-t border-gray-200 text-center">
+            <p className="text-xs text-gray-500">
+              Desenvolvido por
+            </p>
+            <p className="text-sm font-semibold text-gray-700 mt-1">
+              Wagner Henrique Mocelin
+            </p>
           </div>
         </div>
       </div>
