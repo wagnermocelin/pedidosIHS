@@ -20,6 +20,7 @@ router.post(
       }
 
       const { text } = req.body
+      console.log('🎤 Processando comando de voz:', text)
 
       // Buscar todos os itens para matching
       const items = await prisma.item.findMany({
@@ -27,16 +28,18 @@ router.post(
           preferredSupplier: true,
         },
       })
+      console.log(`📦 ${items.length} itens disponíveis no banco`)
 
       // Parser simples (em produção, usar LLM como OpenAI)
       const suggestions = parseVoiceCommand(text, items)
+      console.log(`✅ ${suggestions.length} sugestões geradas:`, suggestions)
 
       res.json({
         originalText: text,
         suggestions,
       })
     } catch (error) {
-      console.error('Erro ao processar comando de voz:', error)
+      console.error('❌ Erro ao processar comando de voz:', error)
       res.status(500).json({ error: 'Erro ao processar comando de voz' })
     }
   }

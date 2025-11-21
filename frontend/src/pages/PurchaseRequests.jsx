@@ -70,15 +70,63 @@ export default function PurchaseRequests() {
     }
   }
 
-  function handleVoiceResult(text) {
-    console.log('Voz capturada:', text)
-    // Aqui você pode integrar com a API de IA
-    api.post('/ai/parse-voice', { text })
-      .then(res => {
-        console.log('Sugestões:', res.data.suggestions)
-        // Implementar lógica para preencher formulário com sugestões
-      })
-      .catch(err => console.error('Erro ao processar voz:', err))
+  async function handleVoiceResult(text) {
+    console.log('🎤 Voz capturada:', text)
+    
+    try {
+      // Enviar para API processar
+      const res = await api.post('/ai/parse-voice', { text })
+      console.log('✅ Sugestões recebidas:', res.data.suggestions)
+      
+      const suggestions = res.data.suggestions
+      
+      if (suggestions.length === 0) {
+        alert('Não consegui entender o pedido. Tente falar algo como: "adicionar 10 quilos de arroz"')
+        return
+      }
+      
+      // Se houver apenas uma sugestão, preencher o formulário automaticamente
+      if (suggestions.length === 1) {
+        const suggestion = suggestions[0]
+        
+        if (suggestion.needsCreation) {
+          alert(`Item "${suggestion.itemName}" não encontrado. Por favor, cadastre-o primeiro.`)
+          return
+        }
+        
+        // Preencher formulário com a sugestão
+        setFormData({
+          itemId: suggestion.itemId.toString(),
+          quantity: suggestion.quantity.toString(),
+          unitPrice: '',
+          notes: `Pedido por voz: "${text}"`
+        })
+        setShowModal(true)
+        alert(`Pedido identificado: ${suggestion.quantity} ${suggestion.unit} de ${suggestion.itemName}`)
+      } else {
+        // Múltiplas sugestões - criar todos os pedidos
+        const confirmMsg = `Encontrei ${suggestions.length} itens:\n` +
+          suggestions.map(s => `- ${s.quantity} ${s.unit} de ${s.itemName}`).join('\n') +
+          '\n\nDeseja criar todos esses pedidos?'
+        
+        if (confirm(confirmMsg)) {
+          for (const suggestion of suggestions) {
+            if (!suggestion.needsCreation) {
+              await api.post('/purchase-requests', {
+                itemId: suggestion.itemId,
+                quantity: suggestion.quantity,
+                notes: `Pedido por voz: "${text}"`
+              })
+            }
+          }
+          alert('Pedidos criados com sucesso!')
+          loadData()
+        }
+      }
+    } catch (err) {
+      console.error('❌ Erro ao processar voz:', err)
+      alert('Erro ao processar comando de voz. Verifique o console.')
+    }
   }
 
   const getStatusBadge = (status) => {
